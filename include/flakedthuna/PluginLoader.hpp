@@ -3,48 +3,47 @@
 #include "PlatformDefs.hpp"
 #include "PluginRegistry.hpp"
 
+#include <filesystem>
 #include <map>
 #include <string>
 #include <vector>
-#include <filesystem>
 
-namespace FlakedTuna
-{
+namespace FlakedTuna {
 class PluginLoader
 {
 private:
-  std::vector<PLUG_HANDLE> _libraries;
-  registryVector           _registries;
+    std::vector<PLUG_HANDLE> _libraries;
+    registryVector _registries;
 
-  void ClosePluginLibraries();
+    void ClosePluginLibraries();
 
-  static const std::string m_DefaultExtension;
+    static const std::string m_DefaultExtension;
 
 public:
-  ~PluginLoader();
+    ~PluginLoader();
 
-  bool FindPluginsAtDirectory( const std::filesystem::path& path = ".", const std::string& extension = PluginLoader::m_DefaultExtension );
+    bool FindPluginsAtDirectory(const std::filesystem::path &path = ".",
+                                const std::string &extension = PluginLoader::m_DefaultExtension);
 
-  template<class BaseT> std::vector<std::shared_ptr<BaseT>> BuildAndResolvePlugin( const int& version = 0 )
-  {
-    std::vector<std::shared_ptr<BaseT>> concretePlugins;
+    template <class BaseT>
+    std::vector<std::shared_ptr<BaseT>> BuildAndResolvePlugin(const int &version = 0) {
+        std::vector<std::shared_ptr<BaseT>> concretePlugins;
 
-    for( auto registryIter: _registries )
-    {
-      if( registryIter.first < version ) continue;  // Earlier versions may not be forward compatible, so ignore
+        for (auto registryIter : _registries) {
+            if (registryIter.first < version)
+                continue; // Earlier versions may not be forward compatible, so ignore
 
-      std::vector<std::shared_ptr<BaseT>> concretePlugin = registryIter.second->ResolvePlugin<BaseT>();
-      for( size_t i = 0; i != concretePlugin.size(); ++i )
-      {
-        if( concretePlugin[i].get() != nullptr )
-        {
-          // It has this base type registered
-          concretePlugins.push_back( concretePlugin[i] );
+            std::vector<std::shared_ptr<BaseT>> concretePlugin =
+                registryIter.second->ResolvePlugin<BaseT>();
+            for (size_t i = 0; i != concretePlugin.size(); ++i) {
+                if (concretePlugin[i].get() != nullptr) {
+                    // It has this base type registered
+                    concretePlugins.push_back(concretePlugin[i]);
+                }
+            }
         }
-      }
-    }
 
-    return concretePlugins;
-  }
+        return concretePlugins;
+    }
 };
-}  // namespace FlakedTuna
+} // namespace FlakedTuna
