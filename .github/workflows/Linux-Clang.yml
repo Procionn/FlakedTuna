@@ -16,16 +16,19 @@ jobs:
   # Checkout apply clang-format and upload artifact
   build:
     name: "Build"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
-        compiler-version: [[clang-10, clang++-10], [clang-11, clang++-11]]
+        compiler-version: [[clang-10, clang++-10], [clang-11, clang++-11], [clang-20, clang++-20], [clang-21, clang++-21], [clang-22, clang++-22]]
 
     steps:
 
     - name: Checkout
       uses: actions/checkout@v7.0.0
+
+    - name: Install Clang
+      run: sudo apt-get install -y clang++-10 clang++-11 clang++-20 clang++-21 clang++-22
 
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v2.2
